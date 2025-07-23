@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
+import axios from "axios";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -23,18 +24,20 @@ function App() {
 
   // Fetch health tip on first load
   useEffect(() => {
-    setLoadingTip(true);
-    fetch("http://localhost:5000/api/health-tip")
-      .then((res) => res.json())
-      .then((data) => {
-        setDailyTip(data.tip);
-        setLoadingTip(false);
-      })
-      .catch((err) => {
+    const fetchHealthTip = async () => {
+      setLoadingTip(true);
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/health-tip`);
+        setDailyTip(res.data.tip);
+      } catch (err) {
         console.error("Tip fetch error:", err);
         setDailyTip("Stay hydrated and take care of your hygiene!");
+      } finally {
         setLoadingTip(false);
-      });
+      }
+    };
+
+    fetchHealthTip();
   }, []);
 
   // Send message
@@ -45,13 +48,20 @@ function App() {
     setMessages((prev) => [...prev, userMessage]);
     setUserInput("");
 
-    const res = await fetch("http://localhost:5000/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userInput, language }),
-    });
+    const res = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/chat`,
+      {
+        message: userInput,
+        language,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    const data = await res.json();
+    const data = res.data;
     const sarthiMessage = { sender: "sarthi", text: data.reply };
 
     setMessages((prev) => [...prev, sarthiMessage]);
@@ -97,12 +107,20 @@ function App() {
     if (e.key === "Enter") sendMessage();
   };
 
+  const chatBoxRef = useRef(null);
+
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
     <div className="app-container">
       <h1 className="title">🌿 Arogya Mitra 🤖</h1>
 
       <div className="tip-banner">
-        <strong style={{color:"black"}}>💡 Health Tip of the Day:</strong>
+        <strong style={{ color: "black" }}>💡 Health Tip of the Day:</strong>
         <p className="tip-text">{loadingTip ? "Loading..." : dailyTip}</p>
       </div>
 
@@ -115,7 +133,7 @@ function App() {
         </select>
       </div>
 
-      <div className="chat-box">
+      <div className="chat-box" ref={chatBoxRef}>
         {messages.map((msg, index) => (
           <div
             key={index}

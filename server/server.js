@@ -11,11 +11,12 @@ app.use(express.json());
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const MODEL_NAME = "models/gemini-1.5-flash";
 
-
+app.get("/", (req, res) => {
+  res.send("Arogya Mitra's Server is running fine.");
+});
 
 app.post("/api/chat", async (req, res) => {
   const { message, language } = req.body;
-
   const prompt = `
 You are "Arogya Mitra" – a multilingual, compassionate AI health assistant dedicated to public awareness and well-being.
 
@@ -24,7 +25,8 @@ You are "Arogya Mitra" – a multilingual, compassionate AI health assistant ded
 - Be friendly, empathetic, and **easy to understand**.
 
 🌐 Language:
-- Speak in **${language}**.
+- Detect the language of the user’s message automatically.
+- Reply in **the same language** the user used (English, Hindi, Gujarati).
 - Use clear, culturally relevant, and respectful terms.
 
 🛑 Boundaries:
@@ -32,16 +34,16 @@ You are "Arogya Mitra" – a multilingual, compassionate AI health assistant ded
 - DO NOT prescribe or name medicines.
 - If symptoms are serious, always encourage visiting a certified doctor.
 
-✅ Examples of Topics You Can Answer:
+✅ Topics You Can Help With:
 - How to stay hydrated during heatwaves
 - What to eat for strong immunity
 - Menstrual hygiene tips
-- Simple remedies for mosquito protection
-- Handwashing technique and importance
+- Simple mosquito bite protection
+- Handwashing techniques and importance
 
 🎤 Format:
 - Keep replies under **100 words**
-- Be polite and use **encouraging language**
+- Use **encouraging and simple language**
 - Answer as if you are helping a rural or first-time user
 
 🧍User's question:
@@ -63,33 +65,25 @@ You are "Arogya Mitra" – a multilingual, compassionate AI health assistant ded
 
 app.get("/api/health-tip", async (req, res) => {
   const prompt = `
-You are a multilingual health awareness assistant.
+Generate a Health Tip of the Day in three languages: English, Hindi, and Gujarati. The tip should be short (under 30 words), easy to follow, and helpful for daily health and wellness.
 
-🎯 Your task: Provide a single health tip that promotes general wellness, hygiene, or nutrition. Keep the tip short and universally applicable.
+Avoid medical jargon.
 
-💬 Return the tip in **three languages**:
-1. English
-2. Hindi (हिन्दी)
-3. Gujarati (ગુજરાતી)
+Cover general wellness, hygiene, sleep, hydration, or mental health.
 
-🛑 Do not include medicine names, disease diagnosis, or medical treatments.
+Format the output clearly, like this:
 
-🗣️ Keep each version under 25 words. Make sure translations are clear and easy to understand for everyday users.
+🟢 English: [Your health tip in English]
+🔴 Hindi: [Same health tip in Hindi] (in new line)
+🟠 Gujarati: [Same health tip in Gujarati] (in new line)
+Ensure all three tips convey the same meaning and tone.
+Use polite and encouraging language.
 
-Format your response exactly like this:
+🧪 Example Output from This Prompt
 
-🌿 Health Tip of the Day
-
-🔸 English:
-<tip in English>
-
-🔸 Hindi (हिन्दी):
-<tip in Hindi>
-
-🔸 Gujarati (ગુજરાતી):
-<tip in Gujarati>
-
-Now, provide today’s health tip:
+🟢 English: Drink enough water every day to stay active and fresh.
+🔴 Hindi: हर दिन पर्याप्त पानी पिएं ताकि आप तरोताजा और सक्रिय रहें।
+🟠 Gujarati: દરરોજ પૂરતું પાણી પીઓ જેથી તમે તાજગીભર્યા અને સક્રિય રહો.
 
 `;
 
