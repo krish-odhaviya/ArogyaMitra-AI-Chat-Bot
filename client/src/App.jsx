@@ -27,7 +27,9 @@ function App() {
     const fetchHealthTip = async () => {
       setLoadingTip(true);
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/health-tip`);
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/health-tip`
+        );
         setDailyTip(res.data.tip);
       } catch (err) {
         console.error("Tip fetch error:", err);
@@ -118,6 +120,19 @@ function App() {
   return (
     <div className="app-container">
       <h1 className="title">🌿 Arogya Mitra 🤖</h1>
+
+      <div className="sample-questions">
+        <p>
+          <strong>🧠 Try asking:</strong>
+        </p>
+        <ul>
+          <li>What are some tips to stay fit during summer?</li>
+          <li>How can I boost my immunity?</li>
+          <li>Tell me about a healthy morning routine.</li>
+          <li>What should I eat if I have a fever?</li>
+          <li>How to prevent seasonal flu?</li>
+        </ul>
+      </div>
 
       <div className="tip-banner">
         <strong style={{ color: "black" }}>💡 Health Tip of the Day:</strong>
